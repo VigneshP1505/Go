@@ -94,6 +94,7 @@ func _goRoutineLevel4() {
 	runtime.GOMAXPROCS(1)
 	var wg sync.WaitGroup
 	wg.Add(2)
+
 	go func() {
 		defer wg.Done()
 		for {
@@ -107,3 +108,23 @@ func _goRoutineLevel4() {
 
 	wg.Wait()
 }
+
+// 6 go routines - 5 workers, 1 main routine
+// 2 processors
+// At any instance simultaneously only two workers can be run
+// other workers are in Runnable state, not Running
+// time.Sleep() blocks the go orutines, not the processor
+func work(id int) {
+	fmt.Println("Worker", id, "started")
+	time.Sleep(2 * time.Second)
+	fmt.Println("Worker", id, "finished")
+}
+func _goRoutineLevel5() {
+	runtime.GOMAXPROCS(2)
+	for i := 1; i <= 5; i++ {
+		go work(i)
+	}
+	time.Sleep(3 * time.Second)
+}
+
+// the go scheduler promises to be efficient but does not guarantee FIFO order
