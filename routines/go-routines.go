@@ -153,3 +153,26 @@ func _goRoutineLevel6() {
 
 	time.Sleep(3 * time.Second)
 }
+
+// work stealing
+// GOMAXPROCS = 2
+
+// P1 Run Queue:
+// G1
+// G2
+// G3
+// G4
+// G5
+// G6
+
+// P2 Run Queue:
+// (empty)
+
+// M2 is a OS thread, it can or cannot be idle. It might be running some other instruction
+// Since P2 local queue is empty, it steals some goroutines from P1
+// P2 cannot steal currently running routine. It can only steal Runnable goroutine
+// P1->M1->G1, P2->M2->any of the other runnable goroutines
+
+// P Handoff: If a goroutine makes a blocking system call, the runtime detaches the processor (P) from that blocked thread (M) and attaches it to a fresh or waiting thread so other tasks keep moving.
+// OS-level blocking - blocking syscall certain file I/O, device I/O
+// Go achieves parallelism automatically on multi-core machines. Its internal scheduler (the M:N scheduler) distributes active goroutines across multiple operating system threads and CPU cores.
