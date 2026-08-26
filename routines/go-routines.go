@@ -128,3 +128,28 @@ func _goRoutineLevel5() {
 }
 
 // the go scheduler promises to be efficient but does not guarantee FIFO order
+
+// When G1 executes <-ch, it enters blocked or Waiting state
+// P1 is never blocked, only goroutines are blocked
+// M1 is never blocked
+// G2 is run after G1 is blocked as G2 is in Runnable state
+// G1 running, sends value 42, G1 becomes Waiting -> Runnable. G2 can run longer and G1 runs only when it is done or is blocked or is Waiting
+func _goRoutineLevel6() {
+	runtime.GOMAXPROCS(1)
+	ch := make(chan int)
+
+	go func() {
+		fmt.Println("G1:Waiting for value...")
+		x := <-ch
+		fmt.Println("G1 received:", x)
+	}()
+
+	go func() {
+		fmt.Println("G2: Sleeping...")
+		time.Sleep(2 * time.Second)
+		fmt.Println("G2: Sending value")
+		ch <- 42
+	}()
+
+	time.Sleep(3 * time.Second)
+}
