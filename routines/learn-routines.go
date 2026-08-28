@@ -174,5 +174,5 @@ func _inMemoryTriggerPressure() {
 // with channels, only one goroutine owns data at a time
 // no shared memory needed: Goroutine A -> channel -> GoroutineB
 func main() {
-	_goRoutineLevel5()
+	_goRoutineLevel8()
 }

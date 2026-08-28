@@ -191,3 +191,26 @@ func _goRoutineLevel7() {
 
 // all other routines are in Runnable state when G1 is cpu-bound and G2 is cpu-bound
 // GOMAXPROCS control how many goroutines can execute in parallel and not how many goroutines can exist
+
+func _goRoutineLevel8() {
+	runtime.GOMAXPROCS(1)
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		time.Sleep(10 * time.Second)
+		fmt.Println("G1 is done")
+	}()
+	go func() {
+		defer wg.Done()
+		for {
+			//cpu intensive work
+		}
+	}()
+	wg.Wait()
+}
+
+// P has G1 initially. Since G1 continues to be waiting, the scheduler preempts and G2 is assigned the cpu
+// now G2 is a cpu-intensive task. Runtime detaches P from M2 and attaches it to waiting thread which is M1 here.
+
+//G1 is executed and P picks up G2 which is blocked forever
