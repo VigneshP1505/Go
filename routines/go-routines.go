@@ -176,3 +176,18 @@ func _goRoutineLevel6() {
 // P Handoff: If a goroutine makes a blocking system call, the runtime detaches the processor (P) from that blocked thread (M) and attaches it to a fresh or waiting thread so other tasks keep moving.
 // OS-level blocking - blocking syscall certain file I/O, device I/O
 // Go achieves parallelism automatically on multi-core machines. Its internal scheduler (the M:N scheduler) distributes active goroutines across multiple operating system threads and CPU cores.
+
+func _goRoutineLevel7() {
+	runtime.GOMAXPROCS(2)
+	for i := 0; i < 1000; i++ {
+		go cpuIntensiveTask()
+	}
+}
+
+//machine has 11 physical cores and 11 logical cores
+// number of routines created-1001
+// Only 2 processor are available
+// Only 2 routines are be executed simultaneously
+
+// all other routines are in Runnable state when G1 is cpu-bound and G2 is cpu-bound
+// GOMAXPROCS control how many goroutines can execute in parallel and not how many goroutines can exist
