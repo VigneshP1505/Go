@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: food-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: food_order_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./internal/db/migration.sql:/docker-entrypoint-initdb.d/init.sql
+  
+volumes:
+    postgres_data:
