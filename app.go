@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"example.com/first-app/structs"
 	"github.com/gin-gonic/gin"
 )
 
@@ -69,3 +70,7 @@ func (e *EmployeeRepo) CreateEmployee(emp struct {
 // 	router.POST("/books", createBook)
 // 	router.Run("localhost:8080")
 // }
+
+func main() {
+	structs.CreateOrders()
+}

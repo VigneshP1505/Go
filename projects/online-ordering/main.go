@@ -21,7 +21,9 @@ func main() {
 
 	repo := repository.NewOrderRepository(dbPool)
 
-	orderService := service.NewOrderService(repo)
+	wp := service.NewWorkerPool(3)
+
+	orderService := service.NewOrderService(repo, *wp)
 
 	handler := api.NewOrderHandler(orderService)
 

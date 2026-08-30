@@ -82,3 +82,72 @@ func (u user) getClone() *user {
 		createdAt: time.Now(),
 	}
 }
+
+// struct is a Go's way to create a data type of multiple fields
+// You can attach methods to a struct
+
+type Order struct {
+	ID         int
+	CustomerID int
+	Amount     float64
+	Status     string
+}
+
+type Customer struct {
+	ID   int
+	Name string
+}
+
+type OnlineOrder struct {
+	ID       int
+	Customer Customer
+	Amount   float64
+	Status   string
+}
+
+func (o Order) IsPending() bool {
+	return o.Status == "PENDING"
+}
+
+func (o Order) UpdateByValue(status string) {
+	o.Status = status
+}
+
+func (o *Order) UpdateOrder(status string) {
+	o.Status = status
+}
+
+func CreateOrders() {
+	order := Order{
+		ID:         101,
+		CustomerID: 112,
+		Amount:     29.99,
+		Status:     "PENDING",
+	}
+	fmt.Println(order.IsPending())
+	order.UpdateOrder("PICKED_UP")
+	fmt.Println(order.IsPending())
+	order.Status = "PENDING"
+	order.UpdateByValue("PICKED_UP")
+	fmt.Println(order.IsPending())
+}
+
+//interfaces
+//Any type that has all interface methods satisfies that interface
+
+type PaymentProcessor interface {
+	Process(amount float64) error
+}
+
+type StripeProcessor struct{}
+type PayPalProcessor struct{}
+
+func (s StripeProcessor) Process(amount float64) error {
+	fmt.Println("stripe processor", amount)
+	return nil
+}
+
+func (p PayPalProcessor) Process(amount float64) error {
+	fmt.Println("Paypal processor", amount)
+	return nil
+}

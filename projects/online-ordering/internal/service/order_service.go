@@ -9,12 +9,14 @@ import (
 )
 
 type OrderService struct {
-	repo repostiory.OrderRepository
+	repo       repostiory.OrderRepository
+	workerPool WorkerPool
 }
 
-func NewOrderService(repo repostiory.OrderRepository) *OrderService {
+func NewOrderService(repo repostiory.OrderRepository, workerPool WorkerPool) *OrderService {
 	return &OrderService{
-		repo: repo,
+		repo:       repo,
+		workerPool: workerPool,
 	}
 }
 
@@ -34,7 +36,12 @@ func (o *OrderService) Create(ctx context.Context, order *models.Order) error {
 
 	order.TotalAmount = total
 
-	return o.repo.Create(ctx, order)
+	err := o.repo.Create(ctx, order)
+	if err != nil {
+		panic(err)
+	}
+	o.workerPool.Submit(Job{OrderId: order.ID})
+	return nil
 }
 
 func (o *OrderService) GetByID(ctx context.Context, id uuid.UUID) (*models.Order, error) {
