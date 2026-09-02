@@ -14,5 +14,5 @@ type OrderRepository interface {
 
 type CustomerRepository interface {
 	Create(ctx context.Context, customer *models.Customer) error
-	GetByID(ctx context.Context, id uuid.UUID) error
+	GetByID(ctx context.Context, id uuid.UUID) (*models.Customer, error)
 }

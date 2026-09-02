@@ -12,7 +12,7 @@ type customerRepository struct {
 	db *pgxpool.Pool
 }
 
-func (c *customerRepository) Create(ctx context.Context, customer models.Customer) error {
+func (c *customerRepository) Create(ctx context.Context, customer *models.Customer) error {
 	tx, err := c.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -57,8 +57,8 @@ func (c *customerRepository) GetByID(ctx context.Context, id uuid.UUID) (*models
 	return customer, nil
 }
 
-func NewCustomerRepository(db *pgxpool.Pool) OrderRepository {
-	return &orderRepository{
+func NewCustomerRepository(db *pgxpool.Pool) CustomerRepository {
+	return &customerRepository{
 		db: db,
 	}
 }

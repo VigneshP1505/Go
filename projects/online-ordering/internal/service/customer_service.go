@@ -21,7 +21,7 @@ func (c *CustomerService) Create(ctx context.Context, customer *models.Customer)
 	return nil
 }
 
-func (c *CustomerService) GetByID(ctx context.Context, id uuid.UUID) error {
+func (c *CustomerService) GetByID(ctx context.Context, id uuid.UUID) (*models.Customer, error) {
 	return c.repo.GetByID(ctx, id)
 }
 

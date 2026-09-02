@@ -21,10 +21,12 @@ func main() {
 	}
 
 	repo := repository.NewOrderRepository(dbPool)
+	customerRepo := repository.NewCustomerRepository(dbPool)
 
 	wp := service.NewWorkerPool(3)
 
 	orderService := service.NewOrderService(repo, *wp)
+	_ = service.NewCustomerService(customerRepo)
 
 	handler := api.NewOrderHandler(orderService)
 
