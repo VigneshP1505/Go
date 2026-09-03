@@ -22,6 +22,7 @@ func (w *WorkerPool) Submit(job Job) {
 func (w *WorkerPool) worker(id int) {
 	for job := range w.jobs {
 		fmt.Printf("Worker %d processing order %s", id, job.OrderId)
+		time.Sleep(5 * time.Second)
 		time.Sleep(time.Second)
 	}
 }
