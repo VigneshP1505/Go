@@ -4,16 +4,19 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/vignesh/online-ordering/internal/events"
+	"github.com/vignesh/online-ordering/internal/kafka"
 	"github.com/vignesh/online-ordering/internal/models"
-	repostiory "github.com/vignesh/online-ordering/internal/repository"
+	"github.com/vignesh/online-ordering/internal/repository"
 )
 
 type OrderService struct {
-	repo       repostiory.OrderRepository
+	repo       repository.OrderRepository
 	workerPool WorkerPool
+	producer   kafka.Producer
 }
 
-func NewOrderService(repo repostiory.OrderRepository, workerPool WorkerPool) *OrderService {
+func NewOrderService(repo repository.OrderRepository, workerPool WorkerPool) *OrderService {
 	return &OrderService{
 		repo:       repo,
 		workerPool: workerPool,
@@ -40,7 +43,14 @@ func (o *OrderService) Create(ctx context.Context, order *models.Order) error {
 	if err != nil {
 		panic(err)
 	}
-	o.workerPool.Submit(Job{OrderId: order.ID})
+	// o.workerPool.Submit(Job{OrderId: order.ID})
+	event := events.OrderCreatedEvent{
+		OrderId:      order.ID,
+		CustomerId:   order.CustomerID,
+		RestaurantId: order.RestaurantID,
+		TotalAmount:  order.TotalAmount,
+	}
+	o.producer.Publish(ctx, event)
 	return nil
 }
 
