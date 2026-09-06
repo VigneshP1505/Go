@@ -16,10 +16,11 @@ type OrderService struct {
 	producer   kafka.Producer
 }
 
-func NewOrderService(repo repository.OrderRepository, workerPool WorkerPool) *OrderService {
+func NewOrderService(repo repository.OrderRepository, workerPool WorkerPool, producer kafka.Producer) *OrderService {
 	return &OrderService{
 		repo:       repo,
 		workerPool: workerPool,
+		producer:   producer,
 	}
 }
 

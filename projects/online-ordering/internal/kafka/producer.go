@@ -14,8 +14,9 @@ type Producer struct {
 func NewProducer() *Producer {
 	return &Producer{
 		writer: &kafka.Writer{
-			Addr:  kafka.TCP("localhost:9092"),
-			Topic: "order-created",
+			Addr:     kafka.TCP("localhost:9092"),
+			Topic:    "order-created",
+			Balancer: &kafka.LeastBytes{},
 		},
 	}
 }
@@ -25,4 +26,8 @@ func (p *Producer) Publish(ctx context.Context, event any) error {
 	return p.writer.WriteMessages(ctx, kafka.Message{
 		Value: data,
 	})
+}
+
+func (p *Producer) Close() error {
+	return p.writer.Close()
 }

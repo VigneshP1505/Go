@@ -8,6 +8,7 @@ import (
 	"github.com/vignesh/online-ordering/internal/api"
 	"github.com/vignesh/online-ordering/internal/config"
 	"github.com/vignesh/online-ordering/internal/db"
+	"github.com/vignesh/online-ordering/internal/kafka"
 	"github.com/vignesh/online-ordering/internal/repository"
 	"github.com/vignesh/online-ordering/internal/service"
 )
@@ -25,15 +26,20 @@ func main() {
 
 	wp := service.NewWorkerPool(3)
 
-	orderService := service.NewOrderService(repo, *wp)
+	producer := kafka.NewProducer()
+
+	orderService := service.NewOrderService(repo, *wp, *producer)
 	_ = service.NewCustomerService(customerRepo)
 
 	handler := api.NewOrderHandler(orderService)
+
+	go kafka.Consumer()
 
 	router := api.NewRouter(handler)
 
 	if err := http.ListenAndServe(":"+cfg.Port, router); err != nil {
 		log.Fatal(err)
 	}
+
 	fmt.Print("server is up and running!")
 }
