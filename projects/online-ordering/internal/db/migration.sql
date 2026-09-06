@@ -31,3 +31,15 @@ create table customers(
 )
 
 create index idx_customers_email on customers(customer_email)
+
+create table outbox_events(
+    id uuid primary key,
+    event_type varchar(100) not null,
+    aggregate_id uuid not null,
+    payload jsonb not null,
+    published boolean default false,
+    created_at timestamp default now(),
+    published_at timestamp
+)
+
+create index idx_outbox_events on outbox_events(published, created_at)

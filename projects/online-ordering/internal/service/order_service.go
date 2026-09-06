@@ -51,7 +51,8 @@ func (o *OrderService) Create(ctx context.Context, order *models.Order) error {
 		RestaurantId: order.RestaurantID,
 		TotalAmount:  order.TotalAmount,
 	}
-	o.producer.Publish(ctx, event)
+	// o.producer.Publish(ctx, event)
+	o.repo.CreateOutbox(ctx, order, event)
 	return nil
 }
 

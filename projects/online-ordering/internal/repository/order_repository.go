@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/vignesh/online-ordering/internal/events"
 	"github.com/vignesh/online-ordering/internal/models"
 )
 
@@ -70,6 +72,79 @@ func (o *orderRepository) Create(
 		if err != nil {
 			return err
 		}
+	}
+
+	return tx.Commit(ctx)
+}
+
+//CreateByOutbox implements [OrderRepository]
+
+func (o *orderRepository) CreateOutbox(ctx context.Context, order *models.Order, event events.OrderCreatedEvent) error {
+	tx, err := o.db.Begin(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, `
+		INSERT INTO orders (
+			id,
+			customer_id,
+			restaurant_id,
+			total_amount,
+			order_status
+		)
+		VALUES ($1, $2, $3, $4, $5)
+	`,
+		order.ID,
+		order.CustomerID,
+		order.RestaurantID,
+		order.TotalAmount,
+		order.Status,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	for _, item := range order.Items {
+
+		_, err = tx.Exec(ctx, `
+			INSERT INTO order_items (
+				id,
+				order_id,
+				item_name,
+				quantity,
+				price
+			)
+			VALUES ($1, $2, $3, $4, $5)
+		`,
+			item.ID,
+			order.ID,
+			item.ItemName,
+			item.Quantity,
+			item.Price,
+		)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	payload, err := json.Marshal(event)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx, `
+		INSERT into outbox_events(id, event_type,aggregate_id,payload,published) values($1,$2,$3,$4, FALSE)
+	`, uuid.New(), "OrderCreated", order.ID, payload)
+
+	if err != nil {
+		return err
 	}
 
 	return tx.Commit(ctx)
