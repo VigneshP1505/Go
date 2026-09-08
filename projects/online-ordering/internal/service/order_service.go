@@ -5,18 +5,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/vignesh/online-ordering/internal/events"
-	"github.com/vignesh/online-ordering/internal/kafka"
 	"github.com/vignesh/online-ordering/internal/models"
 	"github.com/vignesh/online-ordering/internal/repository"
+	"github.com/vignesh/online-ordering/internal/streams"
 )
 
 type OrderService struct {
 	repo       repository.OrderRepository
 	workerPool WorkerPool
-	producer   kafka.Producer
+	producer   streams.Producer
 }
 
-func NewOrderService(repo repository.OrderRepository, workerPool WorkerPool, producer kafka.Producer) *OrderService {
+func NewOrderService(repo repository.OrderRepository, workerPool WorkerPool, producer streams.Producer) *OrderService {
 	return &OrderService{
 		repo:       repo,
 		workerPool: workerPool,

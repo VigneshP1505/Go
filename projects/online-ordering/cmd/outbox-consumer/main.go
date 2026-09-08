@@ -1,4 +1,4 @@
-package kafka
+package main
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/vignesh/online-ordering/internal/events"
 )
 
-func Consumer() {
+func main() {
 	fmt.Println("Consumer running")
 	ctx := context.Background()
 	reader := kafka.NewReader(kafka.ReaderConfig{
@@ -28,7 +28,7 @@ func Consumer() {
 	for {
 		message, err := reader.ReadMessage(ctx)
 		if err != nil {
-			log.Printf("kafka error:", err)
+			log.Printf("kafka error: %o", err)
 			continue
 		}
 
@@ -38,7 +38,7 @@ func Consumer() {
 		err = json.Unmarshal(message.Value, &event)
 
 		if err != nil {
-			log.Printf("failed to deserialize:", err)
+			log.Printf("failed to deserialize: %o", err)
 			continue
 		}
 

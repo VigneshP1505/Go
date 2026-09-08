@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -192,6 +194,35 @@ func (o *orderRepository) GetByID(
 	}
 
 	return order, nil
+}
+
+func (o *orderRepository) GetUnpublishedEvents(ctx context.Context) ([]events.OrderCreatedEvent, error) {
+	query := `Select id,event_type,payload from outbox_events where published=FALSE order by created_at limit 100`
+	rows, err := o.db.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	unpublishedEvents := make([]events.OrderCreatedEvent, 0)
+
+	for rows.Next() {
+		var event events.OrderCreatedEvent
+		err = rows.Scan(&event.OrderId, &event.CustomerId, &event.RestaurantId, &event.TotalAmount)
+		unpublishedEvents = append(unpublishedEvents, event)
+	}
+	return unpublishedEvents, nil
+}
+
+func (o *orderRepository) MarkPublished(ctx context.Context, id uuid.UUID) error {
+	query := `update outbox_events set published=TRUE, published_at=$1 where OrderId=$2`
+	_, err := o.db.Exec(ctx, query, time.Now(), id)
+	if err != nil {
+		log.Println("Failed to update event as published")
+		return err
+	}
+	return nil
 }
 
 func NewOrderRepository(db *pgxpool.Pool) OrderRepository {
