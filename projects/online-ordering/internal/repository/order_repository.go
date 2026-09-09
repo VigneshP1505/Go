@@ -225,6 +225,10 @@ func (o *orderRepository) MarkPublished(ctx context.Context, id uuid.UUID) error
 	return nil
 }
 
+func (o *orderRepository) LockUbpublishedEvents(ctx context.Context, limit int) ([]events.OrderCreatedEvent, error) {
+	return nil, nil
+}
+
 func NewOrderRepository(db *pgxpool.Pool) OrderRepository {
 	return &orderRepository{
 		db: db,
