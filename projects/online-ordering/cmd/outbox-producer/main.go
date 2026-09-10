@@ -22,10 +22,10 @@ func main() {
 
 	defer producer.Close()
 
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(3 * time.Second)
 
 	for range ticker.C {
-		events, err := repo.GetUnpublishedEvents(ctx)
+		tx, events, err := repo.LockUnpublishedEvents(ctx, 100)
 		if err != nil {
 			log.Println(err)
 			continue

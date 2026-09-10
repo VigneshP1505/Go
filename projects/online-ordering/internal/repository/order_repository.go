@@ -225,8 +225,50 @@ func (o *orderRepository) MarkPublished(ctx context.Context, id uuid.UUID) error
 	return nil
 }
 
-func (o *orderRepository) LockUbpublishedEvents(ctx context.Context, limit int) ([]events.OrderCreatedEvent, error) {
-	return nil, nil
+func (o *orderRepository) LockUnpublishedEvents(ctx context.Context, limit int) (pgx.Tx, []events.OrderCreatedEvent, error) {
+	tx, err := o.db.Begin(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	query := `select id, event_type, aggregate_id,payload from outbox_events where published=false order by created_at for update skip locked limit $1`
+	rows, err := tx.Query(ctx, query, limit)
+	if err != nil {
+		tx.Rollback(ctx)
+		return nil, nil, err
+	}
+	defer rows.Close()
+	eventsToBePublished := make([]events.OrderCreatedEvent, 0)
+	for rows.Next() {
+		var event events.OrderCreatedEvent
+		err := rows.Scan(&event.OrderId, &event.RestaurantId, &event.CustomerId, &event.TotalAmount)
+		if err != nil {
+			tx.Rollback(ctx)
+			return nil, nil, err
+		}
+		eventsToBePublished = append(eventsToBePublished, event)
+	}
+	if err := rows.Err(); rows != nil {
+		tx.Rollback(ctx)
+		return nil, nil, err
+	}
+	return tx, eventsToBePublished, nil
+}
+
+func (r *orderRepository) MarkPublishedTx(
+	ctx context.Context,
+	tx pgx.Tx,
+	eventID uuid.UUID,
+) error {
+
+	query := `
+		UPDATE outbox_events
+		SET published = TRUE,
+		    published_at = NOW()
+		WHERE id = $1
+	`
+
+	_, err := tx.Exec(ctx, query, eventID)
+	return err
 }
 
 func NewOrderRepository(db *pgxpool.Pool) OrderRepository {
