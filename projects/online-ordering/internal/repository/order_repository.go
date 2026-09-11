@@ -225,7 +225,7 @@ func (o *orderRepository) MarkPublished(ctx context.Context, id uuid.UUID) error
 	return nil
 }
 
-func (o *orderRepository) LockUnpublishedEvents(ctx context.Context, limit int) (pgx.Tx, []events.OrderCreatedEvent, error) {
+func (o *orderRepository) LockUnpublishedEvents(ctx context.Context, limit int) (pgx.Tx, []models.OutboxEvent, error) {
 	tx, err := o.db.Begin(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -237,10 +237,10 @@ func (o *orderRepository) LockUnpublishedEvents(ctx context.Context, limit int) 
 		return nil, nil, err
 	}
 	defer rows.Close()
-	eventsToBePublished := make([]events.OrderCreatedEvent, 0)
+	eventsToBePublished := make([]models.OutboxEvent, 0)
 	for rows.Next() {
-		var event events.OrderCreatedEvent
-		err := rows.Scan(&event.OrderId, &event.RestaurantId, &event.CustomerId, &event.TotalAmount)
+		var event models.OutboxEvent
+		err := rows.Scan(&event.ID, &event.EventType, &event.AggregateId, &event.Payload, &event.CreatedAt, &event.Published, &event.PublishedAt)
 		if err != nil {
 			tx.Rollback(ctx)
 			return nil, nil, err

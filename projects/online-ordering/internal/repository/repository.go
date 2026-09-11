@@ -15,7 +15,8 @@ type OrderRepository interface {
 	GetByID(ctx context.Context, id uuid.UUID) (*models.Order, error)
 	GetUnpublishedEvents(ctx context.Context) ([]events.OrderCreatedEvent, error)
 	MarkPublished(ctx context.Context, id uuid.UUID) error
-	LockUnpublishedEvents(ctx context.Context, limit int) (pgx.Tx, []events.OrderCreatedEvent, error)
+	LockUnpublishedEvents(ctx context.Context, limit int) (pgx.Tx, []models.OutboxEvent, error)
+	MarkPublishedTx(ctx context.Context, tx pgx.Tx, eventId uuid.UUID) error
 }
 
 type CustomerRepository interface {
