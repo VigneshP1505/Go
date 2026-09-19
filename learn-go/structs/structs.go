@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"example.com/first-app/structs/occupation"
+	"example.com/first-app/learn-go/structs/occupation"
 )
 
 type user struct {

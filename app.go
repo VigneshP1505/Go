@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"example.com/first-app/structs"
+	"example.com/first-app/learn-go/structs"
 	"github.com/gin-gonic/gin"
 )
 
