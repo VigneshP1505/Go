@@ -42,31 +42,3 @@ func canFinish(numCourses int, prerequisites [][]int) bool {
 
 	return true
 }
-
-func has_cycle_dfs(node int, parent int, adj [][]int, visited []bool) bool {
-	visited[node] = true
-
-	for _, neighbor := range adj[node] {
-		if !visited[neighbor] {
-			if has_cycle_dfs(neighbor, node, adj, visited) {
-				return true
-			}
-		} else if neighbor != parent {
-			return true
-		}
-	}
-
-	return false
-}
-
-func cyclic(numNodes int, adj [][]int) bool {
-	visited := make([]bool, numNodes)
-	for i := range numNodes {
-		if !visited[i] {
-			if has_cycle_dfs(i, -1, adj, visited) {
-				return true
-			}
-		}
-	}
-	return false
-}
