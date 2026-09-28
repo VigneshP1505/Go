@@ -1,9 +1,6 @@
 package binarytrees
 
 // construct uniq
-func UniqueBST(n int) []*TreeNode {
-
-}
 
 // construct sorted BST recursively
 func constructBST(nums []int) *TreeNode {
