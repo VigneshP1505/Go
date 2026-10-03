@@ -24,16 +24,3 @@ func flatten(root *TreeNode) {
 	}
 	curr = curr.Right
 }
-
-type Nodes struct {
-	Val   int
-	Left  *Nodes
-	Right *Nodes
-}
-
-func _flatten(root *Nodes) *Nodes {
-	if root == nil {
-		return root
-	}
-
-}
