@@ -30,3 +30,25 @@ func PathSumII(root *PathSumIINode, targetSum int) [][]PathSumIINode {
 	pathSumIIUtil(root, targetSum, nil, &paths)
 	return paths
 }
+
+func pathSum(root *Node, target int, path []Node, paths *[][]Node) {
+	if root == nil {
+		return
+	}
+
+	target -= root.Val
+	path = append(path, *root)
+
+	if root.Left == nil && root.Right == nil {
+		if target == 0 {
+			currentPath := make([]Node, len(path))
+			copy(currentPath, path)
+			*paths = append(*paths, currentPath)
+		}
+		return
+	}
+
+	pathSum(root.Left, target, path, paths)
+	pathSum(root.Right, target, path, paths)
+
+}
