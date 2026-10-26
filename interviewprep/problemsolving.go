@@ -142,3 +142,95 @@ func MinCostToClimbStairs(cost []int) int {
 	}
 	return min(dp[n-1], dp[n-2])
 }
+
+func MinCost(cost []int, step int) int {
+	if step == 0 || step == 1 {
+		return cost[step]
+	}
+	left := MinCost(cost, step-1)
+	right := MinCost(cost, step-2)
+	return cost[step] + min(left, right)
+}
+
+// Given an array of integers nums, find the maximum possible sum of elements such that no two selected elements are adjacent in the original array.
+// You may choose zero or more elements, but you cannot select two neighboring elements.
+func MaxSumNonAdjacent(num []int) int {
+	n := len(num)
+	dp := make([]int, n)
+	dp[0] = max(0, num[0])
+
+	if n == 1 {
+		return dp[0]
+	}
+
+	dp[1] = max(dp[0], num[1])
+
+	for i := 2; i < n; i++ {
+		take := num[i] + dp[i-2]
+		skip := dp[i-1]
+		dp[i] = max(take, skip)
+	}
+	return dp[n-1]
+}
+
+// Given an integer array nums, find a non-empty contiguous subarray that has the largest product, and return that product.
+// A subarray is a contiguous part of the array.
+func MaxSubarrayProduct(num []int) int {
+	if len(num) == 0 {
+		return 0
+	}
+	maxEnding := num[0]
+	minEnding := num[0]
+	result := num[0]
+
+	for i := 1; i < len(num); i++ {
+		x := num[i]
+		if x < 0 {
+			maxEnding, minEnding = minEnding, maxEnding
+		}
+		maxEnding = max(x, x*maxEnding)
+		minEnding = min(x, x*minEnding)
+		result = max(result, maxEnding)
+	}
+	return result
+}
+
+func WordBreak(word string, dict map[string]bool) bool {
+	n := len(word)
+	dp := make([]bool, n+1)
+	dp[0] = true
+	for i := 1; i <= n; i++ {
+		for j := 0; j < i; j++ {
+			if dp[j] && dict[word[j:i]] {
+				dp[i] = true
+				break
+			}
+		}
+	}
+	return dp[n]
+}
+
+func LongestSubstring(s string) int {
+	n := len(s)
+	if n == 0 {
+		return 0
+	}
+
+	maxLength := 0
+	left := 0
+	var lastSeen [256]int
+
+	for right := 0; right < n; right++ {
+		ch := s[right]
+
+		if lastSeen[ch] > left {
+			left = lastSeen[right]
+		}
+		lastSeen[ch] = right + 1
+		currLength := right - left + 1
+		if currLength > maxLength {
+			maxLength = currLength
+		}
+	}
+	return maxLength
+}

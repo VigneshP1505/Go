@@ -42,7 +42,7 @@ func LevelSize(root *TNode) {
 	queue := []TNode{*root}
 	for len(queue) > 0 {
 		levelSize := len(queue)
-		for i := 0; i < levelSize; i++ {
+		for range levelSize {
 
 		}
 	}
